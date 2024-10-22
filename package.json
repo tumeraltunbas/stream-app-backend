@@ -1,0 +1,31 @@
+{
+   "name": "stream-app-backend",
+   "version": "1.0.0",
+   "description": "",
+   "main": "index.js",
+   "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start:dev": "tsc && nodemon dist/index.js",
+      "build": "tsc",
+      "format": "prettier --write .",
+      "lint": "eslint . ",
+      "lint:fix": "eslint . --fix "
+   },
+   "author": "",
+   "license": "ISC",
+   "dependencies": {
+      "dotenv": "^16.4.5",
+      "express": "^4.21.1"
+   },
+   "devDependencies": {
+      "@eslint/js": "^9.13.0",
+      "@types/express": "^5.0.0",
+      "@types/node": "^22.7.8",
+      "eslint": "^9.13.0",
+      "globals": "^15.11.0",
+      "nodemon": "^3.1.7",
+      "prettier": "^3.3.3",
+      "typescript": "^5.6.3",
+      "typescript-eslint": "^8.11.0"
+   }
+}
