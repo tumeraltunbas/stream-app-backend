@@ -1,4 +1,4 @@
-import { Collection, Db } from 'mongodb';
+import { Collection } from 'mongodb';
 import { User } from '../models/entities/user.model';
 import { UserCollection } from '../contants/collections';
 import * as databaseService from '../services/database.service';

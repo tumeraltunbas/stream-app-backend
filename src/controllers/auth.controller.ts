@@ -1,9 +1,11 @@
-import { NextFunction, RequestHandler } from 'express';
+import { RequestHandler } from 'express';
 import { createUser } from '../services/auth.service';
 import { RegisterReqDto } from '../models/dtos/request/auth.dto';
-import { successResponseHandler } from '../infrastructure/handlers/success.handler';
 import HTTP_CODES from 'http-status-codes';
 import { CreateUserResDto } from '../models/dtos/response/auth.dto';
+import config, { SecurityConfig } from '../config/config';
+
+const securityConfig: SecurityConfig = config.securityConfig;
 
 export const register: RequestHandler = async (
    req,
@@ -20,5 +22,7 @@ export const register: RequestHandler = async (
 
    const response: CreateUserResDto = await createUser(registerReqDto, next);
 
-   res.status(HTTP_CODES.CREATED).cookie('jwt', response.token).json({});
+   res.status(HTTP_CODES.CREATED)
+      .cookie(securityConfig.jwt.cookieName, response.token)
+      .json({});
 };

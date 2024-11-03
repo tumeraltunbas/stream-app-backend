@@ -19,7 +19,7 @@ export const createUser = async (
    next: NextFunction
 ): Promise<CreateUserResDto> => {
    const { username, email, password } = registerReqDto;
-   let createUserResDto: CreateUserResDto = {};
+   const createUserResDto: CreateUserResDto = {};
 
    try {
       const salt = await bcrypt.genSalt(securityConfig.password.saltLength);

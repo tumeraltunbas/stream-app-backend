@@ -1,8 +1,10 @@
-module.exports = [
+import tseslint from 'typescript-eslint'
+
+const eslintConfig = tseslint.config(
+    ...tseslint.configs.recommended,
     {
-        ignores: [
-            'node_modules/*',
-            'dist/*'
-        ]
+        ignores: ['dist/', 'node_modules/']
     }
-]
+)
+
+export default eslintConfig;

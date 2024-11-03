@@ -12,6 +12,7 @@ export const config: Config = {
          saltLength: 15
       },
       jwt: {
+         cookieName: process.env.JWT_COOKIE_NAME!,
          secretKey: process.env.JWT_SECRET_KEY!,
          expiresIn: process.env.JWT_EXPIRES_IN!
       }
@@ -33,6 +34,7 @@ export interface SecurityConfig {
       saltLength: number;
    };
    jwt: {
+      cookieName: string;
       secretKey: string;
       expiresIn: string;
    };

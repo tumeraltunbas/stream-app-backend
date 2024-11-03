@@ -3,7 +3,6 @@ import {
    IsNotEmpty,
    IsString,
    Matches,
-   MinLength
 } from 'class-validator';
 import { passwordRegex } from '../../../contants/regex';
 
