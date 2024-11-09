@@ -4,13 +4,19 @@ import * as userRepository from '../repositories/user.repository';
 import bcrypt from 'bcrypt';
 import config, { SecurityConfig } from '../config/config';
 import logger from '../utils/logger.util';
-import { CustomError } from '../infrastructure/errors/error';
+import {
+   CustomError,
+   InternalServerError
+} from '../infrastructure/errors/error';
 import { NextFunction } from 'express';
-import HttpCodes, { StatusCodes } from 'http-status-codes';
-import { InternalServerError } from '../contants/errors';
-import { signToken } from '../utils/token.util';
-import { JwtPayload } from '../models/jwt';
+import { StatusCodes } from 'http-status-codes';
+import * as ERROR_CODES from '../contants/errors';
+import { GenerateTokensObj, JwtPayload } from '../models/jwt';
 import { CreateUserResDto } from '../models/dtos/response/auth.dto';
+import { generateTokens } from '../utils/token.util';
+import * as userTokenRepository from '../repositories/user-token.repository';
+import { UserToken } from '../models/entities/user-token.model';
+import { convertToObjectId } from '../utils/mongo.util';
 
 const securityConfig: SecurityConfig = config.securityConfig;
 
@@ -19,7 +25,24 @@ export const createUser = async (
    next: NextFunction
 ): Promise<CreateUserResDto> => {
    const { username, email, password } = registerReqDto;
-   const createUserResDto: CreateUserResDto = {};
+
+   let existingUser: User = null;
+
+   try {
+      existingUser = await userRepository.getUserByEmail(email);
+   } catch (error) {
+      logger.error('Auth Service - createUser - getUserByEmail', error);
+      next(new InternalServerError());
+   }
+
+   if (existingUser) {
+      const customError = new CustomError(
+         StatusCodes.CONFLICT,
+         ERROR_CODES.UserAlreadyExist
+      );
+
+      next(customError);
+   }
 
    try {
       const salt = await bcrypt.genSalt(securityConfig.password.saltLength);
@@ -42,20 +65,25 @@ export const createUser = async (
          email: user.email
       };
 
-      const jwt = signToken(jwtPayload);
+      const tokens: GenerateTokensObj = generateTokens(jwtPayload);
 
-      createUserResDto.token = jwt;
+      const userToken: UserToken = {
+         userId: convertToObjectId(insertedId),
+         refreshToken: tokens.refreshToken,
+         createdAt: new Date()
+      };
+
+      await userTokenRepository.insertUserToken(userToken);
+
+      const createUserResDto: CreateUserResDto = {
+         success: true,
+         accessToken: tokens.accessToken,
+         refreshToken: tokens.refreshToken
+      };
+
       return createUserResDto;
    } catch (error) {
       logger.error('Auth Service - createUser', { error });
-      const customError = new CustomError(
-         StatusCodes.INTERNAL_SERVER_ERROR,
-         HttpCodes.getStatusText(StatusCodes.INTERNAL_SERVER_ERROR),
-         InternalServerError
-      );
-
-      next(customError);
+      next(new InternalServerError());
    }
-
-   return createUserResDto;
 };

@@ -11,10 +11,15 @@ export const config: Config = {
       password: {
          saltLength: 15
       },
-      jwt: {
-         cookieName: process.env.JWT_COOKIE_NAME!,
-         secretKey: process.env.JWT_SECRET_KEY!,
-         expiresIn: process.env.JWT_EXPIRES_IN!
+      accessToken: {
+         name: process.env.ACCESS_TOKEN_NAME!,
+         secretKey: process.env.ACCESS_TOKEN_SECRET_KEY!,
+         expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN!
+      },
+      refreshToken: {
+         name: process.env.REFRESH_TOKEN_NAME!,
+         secretKey: process.env.REFRESH_TOKEN_SECRET_KEY!,
+         expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN!
       }
    }
 };
@@ -33,10 +38,15 @@ export interface SecurityConfig {
    password: {
       saltLength: number;
    };
-   jwt: {
-      cookieName: string;
-      secretKey: string;
+   accessToken: {
+      name: string;
       expiresIn: string;
+      secretKey: string;
+   };
+   refreshToken: {
+      name: string;
+      expiresIn: string;
+      secretKey: string;
    };
 }
 

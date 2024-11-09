@@ -8,7 +8,6 @@ export const errorHandler = (
    next: NextFunction
 ): void => {
    res.status(error.httpStatusCode).json({
-      httpStatusText: error.httpStatusText,
       message: error.message
    });
 };

@@ -1,9 +1,4 @@
-import {
-   IsEmail,
-   IsNotEmpty,
-   IsString,
-   Matches,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
 import { passwordRegex } from '../../../contants/regex';
 
 export class RegisterReqDto {
