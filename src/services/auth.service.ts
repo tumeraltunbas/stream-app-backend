@@ -13,12 +13,12 @@ import { StatusCodes } from 'http-status-codes';
 import * as ERROR_CODES from '../contants/error';
 import { GenerateTokensObj, JwtPayload } from '../models/jwt';
 import { CreateUserResDto } from '../models/dtos/response/auth.dto';
-import { generateAuthTokens, generateRandomToken } from '../utils/token.util';
 import * as userTokenRepository from '../repositories/user-token.repository';
 import { UserToken } from '../models/entities/user-token.model';
 import { convertToObjectId } from '../utils/mongo.util';
 import { USER_TOKEN_TYPES } from '../contants/enum';
 import * as emailUtil from '../utils/email.util';
+import * as tokenUtil from '../utils/token.util';
 
 const securityConfig: SecurityConfig = config.securityConfig;
 
@@ -91,10 +91,12 @@ export const createUser = async (
         email: user.email
     };
 
-    const authTokens: GenerateTokensObj = generateAuthTokens(jwtPayload);
-    const emailVerificationToken: string = generateRandomToken(
-        securityConfig.emailVerificationToken.byteLength
-    );
+    const authTokens: GenerateTokensObj =
+        tokenUtil.generateAuthTokens(jwtPayload);
+    const emailVerificationToken: string =
+        tokenUtil.generateEmailVerificationToken(
+            securityConfig.emailVerificationToken.byteLength
+        );
 
     const refreshTokenDoc: UserToken = {
         userId: convertToObjectId(insertedId),
