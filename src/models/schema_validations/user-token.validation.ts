@@ -9,12 +9,15 @@ const UserTokenCollectionValidation = {
         $jsonSchema: {
             bsonType: BSON_TYPES.OBJECT,
             title: UserTokenValidationTitle,
-            required: ['userId', 'refreshToken', 'createdAt'],
+            required: ['userId', 'token', 'type', 'createdAt'],
             properties: {
                 userId: {
                     bsonType: BSON_TYPES.OBJECT_ID
                 },
-                refreshToken: {
+                token: {
+                    bsonType: BSON_TYPES.STRING
+                },
+                type: {
                     bsonType: BSON_TYPES.STRING
                 },
                 createdAt: {

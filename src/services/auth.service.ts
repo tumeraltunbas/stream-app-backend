@@ -13,10 +13,12 @@ import { StatusCodes } from 'http-status-codes';
 import * as ERROR_CODES from '../contants/error';
 import { GenerateTokensObj, JwtPayload } from '../models/jwt';
 import { CreateUserResDto } from '../models/dtos/response/auth.dto';
-import { generateTokens } from '../utils/token.util';
+import { generateAuthTokens, generateRandomToken } from '../utils/token.util';
 import * as userTokenRepository from '../repositories/user-token.repository';
 import { UserToken } from '../models/entities/user-token.model';
 import { convertToObjectId } from '../utils/mongo.util';
+import { USER_TOKEN_TYPES } from '../contants/enum';
+import * as emailUtil from '../utils/email.util';
 
 const securityConfig: SecurityConfig = config.securityConfig;
 
@@ -89,26 +91,55 @@ export const createUser = async (
         email: user.email
     };
 
-    const tokens: GenerateTokensObj = generateTokens(jwtPayload);
+    const authTokens: GenerateTokensObj = generateAuthTokens(jwtPayload);
+    const emailVerificationToken: string = generateRandomToken(
+        securityConfig.emailVerificationToken.byteLength
+    );
 
-    const userToken: UserToken = {
+    const refreshTokenDoc: UserToken = {
         userId: convertToObjectId(insertedId),
-        refreshToken: tokens.refreshToken,
+        token: authTokens.refreshToken,
+        type: USER_TOKEN_TYPES.REFRESH_TOKEN,
+        createdAt: new Date()
+    };
+
+    const emailVerificationTokenDoc: UserToken = {
+        userId: convertToObjectId(insertedId),
+        token: emailVerificationToken,
+        type: USER_TOKEN_TYPES.EMAIL_VERIFICATION_TOKEN,
         createdAt: new Date()
     };
 
     try {
-        await userTokenRepository.insertUserToken(userToken);
+        await userTokenRepository.insertUserTokens([
+            refreshTokenDoc,
+            emailVerificationTokenDoc
+        ]);
     } catch (error) {
-        logger.error('Auth Service - createUser - insertUserToken', error);
+        logger.error('Auth Service - createUser - insertUserTokens', error);
+        next(new InternalServerError());
+        return undefined;
+    }
+
+    const emailVerificationLink: string =
+        emailUtil.generateEmailVerificationLink(emailVerificationToken);
+
+    try {
+        await emailUtil.sendUserVerificationEmail(
+            user.username,
+            user.email,
+            emailVerificationLink
+        );
+    } catch (error) {
+        logger.error('Auth Service - createUser - sendEmail', { error });
         next(new InternalServerError());
         return undefined;
     }
 
     const createUserResDto: CreateUserResDto = {
         success: true,
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken
+        accessToken: authTokens.accessToken,
+        refreshToken: authTokens.refreshToken
     };
 
     return createUserResDto;

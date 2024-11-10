@@ -10,6 +10,9 @@ export const config: Config = {
     securityConfig: {
         password: {
             saltLength: 15
+        },
+        emailVerificationToken: {
+            byteLength: 20
         }
     },
     tokenConfig: {
@@ -23,6 +26,17 @@ export const config: Config = {
             secretKey: process.env.REFRESH_TOKEN_SECRET_KEY,
             expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN
         }
+    },
+    awsConfig: {
+        region: process.env.AWS_REGION,
+        accessKey: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    },
+    pathConfig: {
+        clientBasePath: process.env.CLIENT_BASE_PATH
+    },
+    emailConfig: {
+        defaultEmail: process.env.DEFAULT_EMAIL
     }
 };
 
@@ -31,6 +45,9 @@ export interface Config {
     databaseConfig: DatabaseConfig;
     securityConfig: SecurityConfig;
     tokenConfig: TokenConfig;
+    awsConfig: AwsConfig;
+    pathConfig: PathConfig;
+    emailConfig: EmailConfig;
 }
 
 export interface DatabaseConfig {
@@ -40,6 +57,9 @@ export interface DatabaseConfig {
 export interface SecurityConfig {
     password: {
         saltLength: number;
+    };
+    emailVerificationToken: {
+        byteLength: number;
     };
 }
 
@@ -54,6 +74,20 @@ export interface TokenConfig {
         expiresIn: string;
         secretKey: string;
     };
+}
+
+export interface AwsConfig {
+    region: string;
+    accessKey: string;
+    secretAccessKey: string;
+}
+
+export interface PathConfig {
+    clientBasePath: string;
+}
+
+export interface EmailConfig {
+    defaultEmail: string;
 }
 
 export default config;
