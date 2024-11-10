@@ -1,3 +1,3 @@
 export interface BaseResDto {
-   success: boolean;
+    success: boolean;
 }

@@ -1,28 +1,31 @@
-import { UserTokenCollection } from '../../contants/collections';
-import { bsonTypes, UserTokenValidationTitle } from '../../contants/db';
+import {
+    BSON_TYPES,
+    UserTokenCollection,
+    UserTokenValidationTitle
+} from '../../contants/database';
 
 const UserTokenCollectionValidation = {
-   validator: {
-      $jsonSchema: {
-         bsonType: bsonTypes.OBJECT,
-         title: UserTokenValidationTitle,
-         required: ['userId', 'refreshToken', 'createdAt'],
-         properties: {
-            userId: {
-               bsonType: bsonTypes.OBJECT_ID
-            },
-            refreshToken: {
-               bsonType: bsonTypes.STRING
-            },
-            createdAt: {
-               bsonType: bsonTypes.DATE
+    validator: {
+        $jsonSchema: {
+            bsonType: BSON_TYPES.OBJECT,
+            title: UserTokenValidationTitle,
+            required: ['userId', 'refreshToken', 'createdAt'],
+            properties: {
+                userId: {
+                    bsonType: BSON_TYPES.OBJECT_ID
+                },
+                refreshToken: {
+                    bsonType: BSON_TYPES.STRING
+                },
+                createdAt: {
+                    bsonType: BSON_TYPES.DATE
+                }
             }
-         }
-      }
-   }
+        }
+    }
 };
 
 export const UserTokenCollectionValidationObj = {
-   collectionName: UserTokenCollection,
-   validations: UserTokenCollectionValidation
+    collectionName: UserTokenCollection,
+    validations: UserTokenCollectionValidation
 };

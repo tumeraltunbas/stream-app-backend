@@ -1,18 +1,14 @@
 import express from 'express';
 import config from './config/config';
 import appRouter from './routes';
-import * as databaseService from './services/database.service';
 import { errorHandler } from './infrastructure/handlers/error.handler';
+import * as databaseService from './services/database.service';
 
-async function build() {
-   const app = express();
-   await databaseService.initializeDatabase();
+const app = express();
 
-   app.use(express.json());
-   app.use('/api', appRouter);
-   app.use(errorHandler);
-
-   app.listen(config.port);
-}
-
-build();
+databaseService.initializeDatabase().then(() => {
+    app.use(express.json());
+    app.use('/api', appRouter);
+    app.use(errorHandler);
+    app.listen(config.port);
+});

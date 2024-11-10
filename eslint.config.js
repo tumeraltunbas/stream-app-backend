@@ -4,5 +4,5 @@ module.exports  = tseslint.config(
     ...tseslint.configs.recommended,
     {
         ignores: ['dist', 'node_modules', 'eslint.config.js'],
-    }
+    },
 )

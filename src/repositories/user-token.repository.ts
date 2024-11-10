@@ -1,15 +1,17 @@
 import { Collection } from 'mongodb';
-import { UserTokenCollection } from '../contants/collections';
 import { UserToken } from '../models/entities/user-token.model';
 import * as databaseService from '../services/database.service';
+import { UserTokenCollection } from '../contants/database';
 
-let userTokenCollection: Collection<UserToken>;
+let userTokenCollection: Collection<UserToken> = null;
 
-databaseService.getDatabase().then((db) => {
-   userTokenCollection = db.collection<UserToken>(UserTokenCollection);
-});
+databaseService
+    .getCollection<UserToken>(UserTokenCollection)
+    .then((collection) => {
+        userTokenCollection = collection;
+    });
 
 export const insertUserToken = async (userToken: UserToken): Promise<void> => {
-   await userTokenCollection.insertOne(userToken);
-   return undefined;
+    await userTokenCollection.insertOne(userToken);
+    return undefined;
 };

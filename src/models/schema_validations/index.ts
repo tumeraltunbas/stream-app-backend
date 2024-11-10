@@ -2,8 +2,8 @@ import { UserTokenCollectionValidationObj } from './user-token.validation';
 import { UserCollectionValidationObj } from './user.validation';
 
 const schemaValidations = [
-   UserCollectionValidationObj,
-   UserTokenCollectionValidationObj
+    UserCollectionValidationObj,
+    UserTokenCollectionValidationObj
 ];
 
 export default schemaValidations;

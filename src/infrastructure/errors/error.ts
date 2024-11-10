@@ -1,17 +1,20 @@
 import { StatusCodes } from 'http-status-codes';
-import * as ERROR_CODES from '../../contants/errors';
+import * as ERROR_CODES from '../../contants/error';
 
 export class CustomError extends Error {
-   httpStatusCode: number;
+    httpStatusCode: number;
 
-   constructor(httpStatusCode: number, errorMessage: string) {
-      super(errorMessage);
-      this.httpStatusCode = httpStatusCode;
-   }
+    constructor(httpStatusCode: number, errorMessage: string) {
+        super(errorMessage);
+        this.httpStatusCode = httpStatusCode;
+    }
 }
 
 export class InternalServerError extends CustomError {
-   constructor() {
-      super(StatusCodes.INTERNAL_SERVER_ERROR, ERROR_CODES.InternalServerError);
-   }
+    constructor() {
+        super(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            ERROR_CODES.InternalServerError
+        );
+    }
 }

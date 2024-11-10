@@ -5,12 +5,12 @@ import bcrypt from 'bcrypt';
 import config, { SecurityConfig } from '../config/config';
 import logger from '../utils/logger.util';
 import {
-   CustomError,
-   InternalServerError
+    CustomError,
+    InternalServerError
 } from '../infrastructure/errors/error';
 import { NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import * as ERROR_CODES from '../contants/errors';
+import * as ERROR_CODES from '../contants/error';
 import { GenerateTokensObj, JwtPayload } from '../models/jwt';
 import { CreateUserResDto } from '../models/dtos/response/auth.dto';
 import { generateTokens } from '../utils/token.util';
@@ -21,69 +21,95 @@ import { convertToObjectId } from '../utils/mongo.util';
 const securityConfig: SecurityConfig = config.securityConfig;
 
 export const createUser = async (
-   registerReqDto: RegisterReqDto,
-   next: NextFunction
+    registerReqDto: RegisterReqDto,
+    next: NextFunction
 ): Promise<CreateUserResDto> => {
-   const { username, email, password } = registerReqDto;
+    const { username, email, password } = registerReqDto;
 
-   let existingUser: User = null;
+    let existingUser: User = null;
 
-   try {
-      existingUser = await userRepository.getUserByEmail(email);
-   } catch (error) {
-      logger.error('Auth Service - createUser - getUserByEmail', error);
-      next(new InternalServerError());
-   }
+    try {
+        existingUser = await userRepository.getUserByEmailOrUsername(
+            username,
+            email
+        );
+    } catch (error) {
+        logger.error(
+            'Auth Service - createUser - getUserByEmailOrUsername',
+            error
+        );
+        next(new InternalServerError());
+        return undefined;
+    }
 
-   if (existingUser) {
-      const customError = new CustomError(
-         StatusCodes.CONFLICT,
-         ERROR_CODES.UserAlreadyExist
-      );
+    if (existingUser) {
+        const customError = new CustomError(
+            StatusCodes.CONFLICT,
+            ERROR_CODES.UserAlreadyExist
+        );
 
-      next(customError);
-   }
+        next(customError);
+        return undefined;
+    }
 
-   try {
-      const salt = await bcrypt.genSalt(securityConfig.password.saltLength);
-      const hashedPassword = await bcrypt.hash(password, salt);
+    let salt: string = null;
+    let hash: string = null;
 
-      const user: User = {
-         email,
-         username,
-         password: hashedPassword,
-         isBlocked: false,
-         isEmailVerified: false,
-         createdAt: new Date(),
-         updatedAt: new Date()
-      };
+    try {
+        salt = await bcrypt.genSalt(securityConfig.password.saltLength);
+        hash = await bcrypt.hash(password, salt);
+    } catch (error) {
+        logger.error('Auth Service - createUser - bcrypt', error);
+        next(new InternalServerError());
+        return undefined;
+    }
 
-      const insertedId = await userRepository.createUser(user);
+    const user: User = {
+        email,
+        username,
+        password: hash,
+        isBlocked: false,
+        isEmailVerified: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+    };
 
-      const jwtPayload: JwtPayload = {
-         _id: insertedId,
-         email: user.email
-      };
+    let insertedId: string = null;
 
-      const tokens: GenerateTokensObj = generateTokens(jwtPayload);
+    try {
+        insertedId = await userRepository.createUser(user);
+    } catch (error) {
+        logger.error('Auth Service - createUser - createUser', error);
+        next(new InternalServerError());
+        return undefined;
+    }
 
-      const userToken: UserToken = {
-         userId: convertToObjectId(insertedId),
-         refreshToken: tokens.refreshToken,
-         createdAt: new Date()
-      };
+    const jwtPayload: JwtPayload = {
+        _id: insertedId,
+        email: user.email
+    };
 
-      await userTokenRepository.insertUserToken(userToken);
+    const tokens: GenerateTokensObj = generateTokens(jwtPayload);
 
-      const createUserResDto: CreateUserResDto = {
-         success: true,
-         accessToken: tokens.accessToken,
-         refreshToken: tokens.refreshToken
-      };
+    const userToken: UserToken = {
+        userId: convertToObjectId(insertedId),
+        refreshToken: tokens.refreshToken,
+        createdAt: new Date()
+    };
 
-      return createUserResDto;
-   } catch (error) {
-      logger.error('Auth Service - createUser', { error });
-      next(new InternalServerError());
-   }
+    try {
+        await userTokenRepository.insertUserToken(userToken);
+    } catch (error) {
+        logger.error('Auth Service - createUser - insertUserToken', error);
+        next(new InternalServerError());
+        return undefined;
+    }
+
+    const createUserResDto: CreateUserResDto = {
+        success: true,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
+    };
+
+    return createUserResDto;
 };
