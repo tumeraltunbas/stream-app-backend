@@ -74,3 +74,7 @@ export const initializeDatabase = async () => {
     await connect();
     await configureCollections();
 };
+
+export const startSession = () => {
+    return mongoClient.startSession();
+};

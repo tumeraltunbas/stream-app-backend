@@ -59,7 +59,7 @@ export const sendUserVerificationEmail = async (
 export const generateEmailVerificationLink = (
     emailVerificationToken: string
 ): string => {
-    const verificationPath = '/auth/email';
+    const verificationPath = '/auth/email/verify';
     const queryParameter = `?emailVerificationToken=${emailVerificationToken}`;
 
     return pathConfig.clientBasePath + verificationPath + queryParameter;

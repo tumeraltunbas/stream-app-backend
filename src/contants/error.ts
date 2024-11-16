@@ -5,3 +5,5 @@ export const PasswordRegexError =
 export const UserNotFound = 'User not found!';
 export const UserBlocked = 'User is blocked!';
 export const InvalidCredentials = 'Invalid credentials!';
+export const TokenNotFound = 'Token not found!';
+export const TokenExpired = 'Token expired!';

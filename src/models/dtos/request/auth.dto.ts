@@ -41,3 +41,7 @@ export class LoginReqDto implements BaseReqDto {
         this.password = password;
     }
 }
+
+export class VerifyEmailReqDto implements BaseReqDto {
+    emailVerificationToken: string;
+}

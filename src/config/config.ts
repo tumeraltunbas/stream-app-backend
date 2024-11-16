@@ -25,7 +25,8 @@ export const config: Config = {
             name: process.env.REFRESH_TOKEN_NAME,
             secretKey: process.env.REFRESH_TOKEN_SECRET_KEY,
             expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN
-        }
+        },
+        emailVerificationTokenExpiresIn: 1000 * 60 * 60 * 24 * 1
     },
     awsConfig: {
         region: process.env.AWS_REGION,
@@ -74,6 +75,7 @@ export interface TokenConfig {
         expiresIn: string;
         secretKey: string;
     };
+    emailVerificationTokenExpiresIn: number;
 }
 
 export interface AwsConfig {

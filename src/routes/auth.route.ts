@@ -15,5 +15,6 @@ authRouter.post(
     [validateDtoMiddleware(LoginReqDto)],
     authController.login
 );
+authRouter.get('/email/verify', authController.verifyEmail);
 
 export default authRouter;

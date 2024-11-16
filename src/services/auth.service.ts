@@ -1,8 +1,12 @@
-import { LoginReqDto, RegisterReqDto } from '../models/dtos/request/auth.dto';
+import {
+    LoginReqDto,
+    RegisterReqDto,
+    VerifyEmailReqDto
+} from '../models/dtos/request/auth.dto';
 import { User } from '../models/entities/user.model';
 import * as userRepository from '../repositories/user.repository';
 import bcrypt from 'bcrypt';
-import config, { SecurityConfig } from '../config/config';
+import config, { SecurityConfig, TokenConfig } from '../config/config';
 import logger from '../utils/logger.util';
 import {
     BusinessRuleError,
@@ -13,14 +17,19 @@ import * as ERROR_CODES from '../contants/error';
 import { GenerateTokensObj, JwtPayload } from '../models/jwt';
 import { CreateUserResDto, LoginResDto } from '../models/dtos/response/auth.dto';
 import * as userTokenRepository from '../repositories/user-token.repository';
-import { UserToken } from '../models/entities/user-token.model';
+import { UserToken, UserTokenView } from '../models/entities/user-token.model';
 import { convertToObjectId } from '../utils/mongo.util';
 import { USER_TOKEN_TYPES } from '../contants/enum';
 import * as emailUtil from '../utils/email.util';
 import * as tokenUtil from '../utils/token.util';
-import { ServiceResponse } from '../models/dtos/response';
+import { BaseResDto, ServiceResponse } from '../models/dtos/response';
+import { ClientSession } from 'mongodb';
+import * as databaseService from '../services/database.service';
 
 const securityConfig: SecurityConfig = config.securityConfig;
+const tokenConfig: TokenConfig = config.tokenConfig;
+
+let session: ClientSession = databaseService.startSession();
 
 export const createUser = async (
     registerReqDto: RegisterReqDto,
@@ -170,12 +179,12 @@ export const login = async (
     }
 
     const tokens: GenerateTokensObj = tokenUtil.generateAuthTokens({
-        _id: user._id,
+        _id: user._id.toString(),
         email: user.email
     });
 
     const refreshTokenDoc: UserToken = {
-        userId: convertToObjectId(user._id),
+        userId: user._id,
         token: tokens.refreshToken,
         type: USER_TOKEN_TYPES.REFRESH_TOKEN,
         createdAt: new Date()
@@ -195,4 +204,54 @@ export const login = async (
     };
 
     return loginResDto;
+};
+
+export const verifyEmail = async (
+    verifyEmailReqDto: VerifyEmailReqDto,
+    next: NextFunction
+): Promise<ServiceResponse<BaseResDto>> => {
+    const { emailVerificationToken } = verifyEmailReqDto;
+
+    let userTokenView: UserTokenView = null;
+
+    try {
+        userTokenView = await userTokenRepository.getUserByToken(
+            USER_TOKEN_TYPES.EMAIL_VERIFICATION_TOKEN,
+            emailVerificationToken
+        );
+    } catch (error) {
+        logger.error('Auth Service - verify email - getUserByToken', {
+            error
+        });
+        return next(new InternalServerError());
+    }
+
+    if (!userTokenView || Object.keys(userTokenView.user).length === 0) {
+        return next(new BusinessRuleError(ERROR_CODES.TokenNotFound));
+    }
+
+    const tokenExpireDateInMs =
+        userTokenView.createdAt.getTime() +
+        tokenConfig.emailVerificationTokenExpiresIn;
+
+    if (tokenExpireDateInMs < Date.now()) {
+        return next(new BusinessRuleError(ERROR_CODES.TokenExpired));
+    }
+
+    const userTokenId: string = String(userTokenView._id);
+    const userId: string = String(userTokenView.userId);
+
+    try {
+        await session.withTransaction(async () => {
+            await userRepository.updateIsEmailVerified(userId, true);
+            await userTokenRepository.removeUserToken(userTokenId);
+        });
+    } catch (error) {
+        logger.error('Auth Service - verify email - transaction error', { error });
+        return next(new InternalServerError());
+    } finally {
+        await session.endSession();
+    }
+
+    return { success: true };
 };
