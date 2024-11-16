@@ -23,7 +23,5 @@ export const UserTokenCollection = 'userTokens';
 
 export const collections = [UserCollection, UserTokenCollection];
 
-export const UserCollectionValidationTitle =
-    'User collection validation object';
-export const UserTokenValidationTitle =
-    'User Token collection validation object';
+export const UserCollectionValidationTitle = 'User collection validation object';
+export const UserTokenValidationTitle = 'User Token collection validation object';

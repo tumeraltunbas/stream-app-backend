@@ -6,30 +6,26 @@ import config, { SecurityConfig } from '../config/config';
 import logger from '../utils/logger.util';
 import {
     BusinessRuleError,
-    CustomError,
     InternalServerError
 } from '../infrastructure/errors/error';
 import { NextFunction } from 'express';
-import { StatusCodes } from 'http-status-codes';
 import * as ERROR_CODES from '../contants/error';
 import { GenerateTokensObj, JwtPayload } from '../models/jwt';
-import {
-    CreateUserResDto,
-    LoginResDto
-} from '../models/dtos/response/auth.dto';
+import { CreateUserResDto, LoginResDto } from '../models/dtos/response/auth.dto';
 import * as userTokenRepository from '../repositories/user-token.repository';
 import { UserToken } from '../models/entities/user-token.model';
 import { convertToObjectId } from '../utils/mongo.util';
 import { USER_TOKEN_TYPES } from '../contants/enum';
 import * as emailUtil from '../utils/email.util';
 import * as tokenUtil from '../utils/token.util';
+import { ServiceResponse } from '../models/dtos/response';
 
 const securityConfig: SecurityConfig = config.securityConfig;
 
 export const createUser = async (
     registerReqDto: RegisterReqDto,
     next: NextFunction
-): Promise<CreateUserResDto> => {
+): Promise<ServiceResponse<CreateUserResDto>> => {
     const { username, email, password } = registerReqDto;
 
     let existingUser: User = null;
@@ -40,21 +36,12 @@ export const createUser = async (
             email
         );
     } catch (error) {
-        logger.error(
-            'Auth Service - createUser - getUserByEmailOrUsername',
-            error
-        );
-        next(new InternalServerError());
-        return undefined;
+        logger.error('Auth Service - createUser - getUserByEmailOrUsername', error);
+        return next(new InternalServerError());
     }
 
     if (existingUser) {
-        const customError = new CustomError(
-            StatusCodes.CONFLICT,
-            ERROR_CODES.UserAlreadyExist
-        );
-
-        next(customError);
+        next(new BusinessRuleError(ERROR_CODES.UserAlreadyExist));
         return undefined;
     }
 
@@ -66,8 +53,7 @@ export const createUser = async (
         hash = await bcrypt.hash(password, salt);
     } catch (error) {
         logger.error('Auth Service - createUser - bcrypt', error);
-        next(new InternalServerError());
-        return undefined;
+        return next(new InternalServerError());
     }
 
     const user: User = {
@@ -86,8 +72,7 @@ export const createUser = async (
         insertedId = await userRepository.createUser(user);
     } catch (error) {
         logger.error('Auth Service - createUser - createUser', error);
-        next(new InternalServerError());
-        return undefined;
+        return next(new InternalServerError());
     }
 
     const jwtPayload: JwtPayload = {
@@ -95,12 +80,10 @@ export const createUser = async (
         email: user.email
     };
 
-    const authTokens: GenerateTokensObj =
-        tokenUtil.generateAuthTokens(jwtPayload);
-    const emailVerificationToken: string =
-        tokenUtil.generateEmailVerificationToken(
-            securityConfig.emailVerificationToken.byteLength
-        );
+    const authTokens: GenerateTokensObj = tokenUtil.generateAuthTokens(jwtPayload);
+    const emailVerificationToken: string = tokenUtil.generateEmailVerificationToken(
+        securityConfig.emailVerificationToken.byteLength
+    );
 
     const refreshTokenDoc: UserToken = {
         userId: convertToObjectId(insertedId),
@@ -123,12 +106,12 @@ export const createUser = async (
         ]);
     } catch (error) {
         logger.error('Auth Service - createUser - insertUserTokens', error);
-        next(new InternalServerError());
-        return undefined;
+        return next(new InternalServerError());
     }
 
-    const emailVerificationLink: string =
-        emailUtil.generateEmailVerificationLink(emailVerificationToken);
+    const emailVerificationLink: string = emailUtil.generateEmailVerificationLink(
+        emailVerificationToken
+    );
 
     try {
         await emailUtil.sendUserVerificationEmail(
@@ -138,8 +121,7 @@ export const createUser = async (
         );
     } catch (error) {
         logger.error('Auth Service - createUser - sendEmail', { error });
-        next(new InternalServerError());
-        return undefined;
+        return next(new InternalServerError());
     }
 
     const createUserResDto: CreateUserResDto = {
@@ -154,7 +136,7 @@ export const createUser = async (
 export const login = async (
     loginReqDto: LoginReqDto,
     next: NextFunction
-): Promise<LoginResDto> => {
+): Promise<ServiceResponse<LoginResDto>> => {
     const { username, password } = loginReqDto;
 
     let user: User = null;
@@ -163,17 +145,15 @@ export const login = async (
         user = await userRepository.getUserByUsername(username);
     } catch (error) {
         logger.error('Auth Service - login - getUserByUsername', { error });
-        next(new InternalServerError());
+        return next(new InternalServerError());
     }
 
     if (!user) {
-        next(new BusinessRuleError(ERROR_CODES.InvalidCredentials));
-        return undefined;
+        return next(new BusinessRuleError(ERROR_CODES.InvalidCredentials));
     }
 
     if (user.isBlocked) {
-        next(new BusinessRuleError(ERROR_CODES.UserBlocked));
-        return undefined;
+        return next(new BusinessRuleError(ERROR_CODES.UserBlocked));
     }
 
     let isCredentialsValid: boolean = false;
@@ -182,13 +162,11 @@ export const login = async (
         isCredentialsValid = await bcrypt.compare(password, user.password);
     } catch (error) {
         logger.error('Auth Service - login - bcrypt compare', { error });
-        next(new InternalServerError());
-        return undefined;
+        return next(new InternalServerError());
     }
 
     if (!isCredentialsValid) {
-        next(new BusinessRuleError(ERROR_CODES.InvalidCredentials));
-        return undefined;
+        return next(new BusinessRuleError(ERROR_CODES.InvalidCredentials));
     }
 
     const tokens: GenerateTokensObj = tokenUtil.generateAuthTokens({
@@ -207,8 +185,7 @@ export const login = async (
         await userTokenRepository.insertUserToken(refreshTokenDoc);
     } catch (error) {
         logger.error('Auth Service - login - insertUserToken', { error });
-        next(new InternalServerError());
-        return undefined;
+        return next(new InternalServerError());
     }
 
     const loginResDto: LoginResDto = {

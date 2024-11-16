@@ -1,9 +1,9 @@
 import { Response } from 'express';
-import { BaseResDto } from '../../models/dtos/response';
+import { BaseResDto, ServiceResponse } from '../../models/dtos/response';
 
 export const handleResponse = (
     httpStatusCode: number,
-    resDto: BaseResDto,
+    resDto: ServiceResponse<BaseResDto>,
     res: Response
 ) => {
     if (resDto && resDto.success) {

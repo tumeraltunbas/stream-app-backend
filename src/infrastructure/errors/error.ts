@@ -12,10 +12,7 @@ export class CustomError extends Error {
 
 export class InternalServerError extends CustomError {
     constructor() {
-        super(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            ERROR_CODES.InternalServerError
-        );
+        super(StatusCodes.INTERNAL_SERVER_ERROR, ERROR_CODES.InternalServerError);
     }
 }
 

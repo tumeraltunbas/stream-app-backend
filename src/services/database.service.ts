@@ -4,9 +4,7 @@ import logger from '../utils/logger.util';
 import schemaValidations from '../models/schema_validations';
 
 const databaseConfig: DatabaseConfig = config.databaseConfig;
-const mongoClient: MongoClient = new MongoClient(
-    databaseConfig.connectionString
-);
+const mongoClient: MongoClient = new MongoClient(databaseConfig.connectionString);
 
 let db: Db = null;
 
@@ -28,9 +26,7 @@ export const getDatabase = async (): Promise<Db> => {
     return db;
 };
 
-export const getCollection = <T>(
-    collectionName: string
-): Promise<Collection<T>> => {
+export const getCollection = <T>(collectionName: string): Promise<Collection<T>> => {
     return getDatabase()
         .then((db) => db.collection<T>(collectionName))
         .then((collection) => collection);
