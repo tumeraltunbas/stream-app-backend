@@ -26,3 +26,18 @@ export class RegisterReqDto implements BaseReqDto {
         this.password = password;
     }
 }
+
+export class LoginReqDto implements BaseReqDto {
+    @IsString()
+    @IsNotEmpty()
+    username: string;
+
+    @IsString()
+    @IsNotEmpty()
+    password: string;
+
+    constructor(username: string, password: string) {
+        this.username = username;
+        this.password = password;
+    }
+}

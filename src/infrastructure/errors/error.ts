@@ -18,3 +18,9 @@ export class InternalServerError extends CustomError {
         );
     }
 }
+
+export class BusinessRuleError extends CustomError {
+    constructor(message: string) {
+        super(StatusCodes.BAD_REQUEST, message);
+    }
+}

@@ -22,3 +22,9 @@ export const getUserByEmailOrUsername = async (
 
     return await userCollection.findOne(query);
 };
+
+export const getUserByUsername = async (username: string): Promise<User> => {
+    const query: Filter<User> = { username };
+
+    return await userCollection.findOne(query);
+};

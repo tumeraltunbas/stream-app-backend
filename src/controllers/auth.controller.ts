@@ -1,8 +1,11 @@
 import { RequestHandler } from 'express';
-import { createUser } from '../services/auth.service';
-import { RegisterReqDto } from '../models/dtos/request/auth.dto';
+import * as authService from '../services/auth.service';
+import { LoginReqDto, RegisterReqDto } from '../models/dtos/request/auth.dto';
 import HTTP_CODES from 'http-status-codes';
-import { CreateUserResDto } from '../models/dtos/response/auth.dto';
+import {
+    CreateUserResDto,
+    LoginResDto
+} from '../models/dtos/response/auth.dto';
 import { handleResponse } from '../infrastructure/handlers/controller.handler';
 import { validateDto } from '../utils/validation.util';
 
@@ -25,6 +28,23 @@ export const register: RequestHandler = async (
         return next(mappedErrors);
     }
 
-    const response: CreateUserResDto = await createUser(registerReqDto, next);
+    const response: CreateUserResDto = await authService.createUser(
+        registerReqDto,
+        next
+    );
     handleResponse(HTTP_CODES.CREATED, response, res);
+};
+
+export const login: RequestHandler = async (req, res, next): Promise<void> => {
+    const { username, password } = req.body;
+
+    const loginReqDto: LoginReqDto = new LoginReqDto(username, password);
+    const mappedErrors = await validateDto(loginReqDto, next);
+
+    if (mappedErrors.length > 0) {
+        return next(mappedErrors);
+    }
+
+    const response: LoginResDto = await authService.login(loginReqDto, next);
+    handleResponse(HTTP_CODES.OK, response, res);
 };

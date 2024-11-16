@@ -1,10 +1,11 @@
-import { RegisterReqDto } from '../models/dtos/request/auth.dto';
+import { LoginReqDto, RegisterReqDto } from '../models/dtos/request/auth.dto';
 import { User } from '../models/entities/user.model';
 import * as userRepository from '../repositories/user.repository';
 import bcrypt from 'bcrypt';
 import config, { SecurityConfig } from '../config/config';
 import logger from '../utils/logger.util';
 import {
+    BusinessRuleError,
     CustomError,
     InternalServerError
 } from '../infrastructure/errors/error';
@@ -12,7 +13,10 @@ import { NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as ERROR_CODES from '../contants/error';
 import { GenerateTokensObj, JwtPayload } from '../models/jwt';
-import { CreateUserResDto } from '../models/dtos/response/auth.dto';
+import {
+    CreateUserResDto,
+    LoginResDto
+} from '../models/dtos/response/auth.dto';
 import * as userTokenRepository from '../repositories/user-token.repository';
 import { UserToken } from '../models/entities/user-token.model';
 import { convertToObjectId } from '../utils/mongo.util';
@@ -145,4 +149,73 @@ export const createUser = async (
     };
 
     return createUserResDto;
+};
+
+export const login = async (
+    loginReqDto: LoginReqDto,
+    next: NextFunction
+): Promise<LoginResDto> => {
+    const { username, password } = loginReqDto;
+
+    let user: User = null;
+
+    try {
+        user = await userRepository.getUserByUsername(username);
+    } catch (error) {
+        logger.error('Auth Service - login - getUserByUsername', { error });
+        next(new InternalServerError());
+    }
+
+    if (!user) {
+        next(new BusinessRuleError(ERROR_CODES.InvalidCredentials));
+        return undefined;
+    }
+
+    if (user.isBlocked) {
+        next(new BusinessRuleError(ERROR_CODES.UserBlocked));
+        return undefined;
+    }
+
+    let isCredentialsValid: boolean = false;
+
+    try {
+        isCredentialsValid = await bcrypt.compare(password, user.password);
+    } catch (error) {
+        logger.error('Auth Service - login - bcrypt compare', { error });
+        next(new InternalServerError());
+        return undefined;
+    }
+
+    if (!isCredentialsValid) {
+        next(new BusinessRuleError(ERROR_CODES.InvalidCredentials));
+        return undefined;
+    }
+
+    const tokens: GenerateTokensObj = tokenUtil.generateAuthTokens({
+        _id: user._id,
+        email: user.email
+    });
+
+    const refreshTokenDoc: UserToken = {
+        userId: convertToObjectId(user._id),
+        token: tokens.refreshToken,
+        type: USER_TOKEN_TYPES.REFRESH_TOKEN,
+        createdAt: new Date()
+    };
+
+    try {
+        await userTokenRepository.insertUserToken(refreshTokenDoc);
+    } catch (error) {
+        logger.error('Auth Service - login - insertUserToken', { error });
+        next(new InternalServerError());
+        return undefined;
+    }
+
+    const loginResDto: LoginResDto = {
+        success: true,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
+    };
+
+    return loginResDto;
 };
