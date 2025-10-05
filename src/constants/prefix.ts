@@ -6,4 +6,6 @@ export enum AUTH_PREFIXES {
 
 export enum CHANNEL_PREFIXES {
     BASE = 'channels',
+    UPDATE = ':channelId',
+    FOLLOW = ':channelId/follow',
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ChannelRepository } from './channel.repository';
 import { Channel } from '../../models/entities/channel';
+import { Follow } from '../../models/entities/follow';
 
 @Injectable()
 export class ChannelService {
@@ -12,5 +13,14 @@ export class ChannelService {
     ): Promise<void> {
         await this.channelRepository.updateChannel(channelId, channel);
         return undefined;
+    }
+
+    async createFollow(follow: Follow): Promise<void> {
+        await this.channelRepository.createFollow(follow);
+        return undefined;
+    }
+
+    async getChannelById(channelId: string): Promise<Channel> {
+        return await this.channelRepository.getChannelById(channelId);
     }
 }

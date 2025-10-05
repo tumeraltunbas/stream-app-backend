@@ -9,6 +9,7 @@ import {
 import { DATABASE_TABLE_NAMES } from '../../constants/database';
 import type { UserToken } from './user-token';
 import type { Channel } from './channel';
+import { Follow } from './follow';
 
 @Entity(DATABASE_TABLE_NAMES.USERS)
 export class User {
@@ -41,6 +42,9 @@ export class User {
 
     @OneToOne('Channel', (channel: Channel) => channel.user)
     channel: Relation<Channel>;
+
+    @OneToMany('Follow', (follow: Follow) => follow.user)
+    follows: Relation<Follow>[];
 
     constructor(email: string, password: string) {
         this.email = email;

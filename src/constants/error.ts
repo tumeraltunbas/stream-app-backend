@@ -7,6 +7,7 @@ export const ERROR_CODES = {
     authorizationError: 'authorization_error',
     notFound: 'not_found',
     channelNotFound: 'channel_not_found',
+    cannotFollowOwnChannel: 'cannot_follow_own_channel',
 };
 
 export const ERROR_MESSAGES = {
@@ -18,4 +19,5 @@ export const ERROR_MESSAGES = {
     authorization_error: 'Authorization error.',
     not_found: 'Not found.',
     channel_not_found: 'Channel not found.',
+    cannot_follow_own_channel: 'User cannot follow his/her own channel.',
 };

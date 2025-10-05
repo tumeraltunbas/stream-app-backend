@@ -5,9 +5,11 @@ import {
     OneToOne,
     Relation,
     PrimaryGeneratedColumn,
+    OneToMany,
 } from 'typeorm';
 import { DATABASE_TABLE_NAMES } from '../../constants/database';
 import type { User } from './user';
+import { Follow } from './follow';
 
 @Entity(DATABASE_TABLE_NAMES.CHANNELS)
 export class Channel {
@@ -35,6 +37,9 @@ export class Channel {
     @OneToOne('User', (user: User) => user.channel, { nullable: false })
     @JoinColumn()
     user: Relation<User>;
+
+    @OneToMany('Follow', (follow: Follow) => follow.channel)
+    follows: Relation<Follow>[];
 
     constructor(name: string, user: User) {
         this.name = name;

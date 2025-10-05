@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ChannelService } from './channel.service';
-import { UpdateChannelReqDto } from '../../models/dto/req/channel';
+import {
+    FollowChannelReqDto,
+    UpdateChannelReqDto,
+} from '../../models/dto/req/channel';
 import { ERROR_CODES } from '../../constants/error';
 import {
     BusinessRuleError,
@@ -8,7 +11,7 @@ import {
 } from '../../infrastructure/error/error';
 import { Channel } from '../../models/entities/channel';
 import { Logger } from '../../infrastructure/logger/logger.service';
-import { isUUID } from 'class-validator';
+import { Follow } from '../../models/entities/follow';
 
 @Injectable()
 export class ChannelOrchestration {
@@ -18,33 +21,57 @@ export class ChannelOrchestration {
     ) {}
 
     async updateChannel(
-        channelId: string,
         updateChannelReqDto: UpdateChannelReqDto,
     ): Promise<void> {
-        const { name, biography } = updateChannelReqDto;
-
-        if (!channelId || !isUUID(channelId)) {
-            throw new BusinessRuleError(ERROR_CODES.channelNotFound);
-        }
+        const { name, biography, channel } = updateChannelReqDto;
 
         if (!name && !biography) {
             throw new BusinessRuleError(ERROR_CODES.validationError);
         }
 
-        const channel: Partial<Channel> = { updatedAt: new Date() };
+        const channelToUpdate: Partial<Channel> = { updatedAt: new Date() };
 
         if (name) {
-            channel['name'] = name;
+            channelToUpdate['name'] = name;
         }
         if (biography) {
-            channel['biography'] = biography;
+            channelToUpdate['biography'] = biography;
         }
 
         try {
-            await this.channelService.updateChannel(channelId, channel);
+            await this.channelService.updateChannel(
+                channel.id,
+                channelToUpdate,
+            );
         } catch (error) {
             this.logger.error(
                 'Channel orchestration - updateChannel - updateChannel',
+                { error },
+            );
+            throw new ProcessFailureError(error);
+        }
+
+        return undefined;
+    }
+
+    async followChannel(
+        followChannelReqDto: FollowChannelReqDto,
+    ): Promise<void> {
+        const { user, channel } = followChannelReqDto;
+
+        const channelOwnerId = channel.user.id;
+
+        if (user.id === channelOwnerId) {
+            throw new BusinessRuleError(ERROR_CODES.cannotFollowOwnChannel);
+        }
+
+        const follow: Follow = new Follow(user, channel);
+
+        try {
+            await this.channelService.createFollow(follow);
+        } catch (error) {
+            this.logger.error(
+                'Channel orchestration - followChannel - createFollow',
                 { error },
             );
             throw new ProcessFailureError(error);
