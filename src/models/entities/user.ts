@@ -1,6 +1,14 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { UserToken } from './user-token';
+import {
+    Column,
+    Entity,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    Relation,
+} from 'typeorm';
 import { DATABASE_TABLE_NAMES } from '../../constants/database';
+import type { UserToken } from './user-token';
+import type { Channel } from './channel';
 
 @Entity(DATABASE_TABLE_NAMES.USERS)
 export class User {
@@ -28,8 +36,11 @@ export class User {
     })
     updatedAt: Date;
 
-    @OneToMany(() => UserToken, (user) => user.user)
-    userTokens?: UserToken[];
+    @OneToMany('UserToken', (userToken: UserToken) => userToken.user)
+    userTokens?: Relation<UserToken>[];
+
+    @OneToOne('Channel', (channel: Channel) => channel.user)
+    channel: Relation<Channel>;
 
     constructor(email: string, password: string) {
         this.email = email;

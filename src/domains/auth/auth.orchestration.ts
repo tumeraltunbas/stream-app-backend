@@ -18,6 +18,7 @@ import { LoginResDto, RegisterResDto } from '../../models/dto/res/auth';
 import { UserToken } from '../../models/entities/user-token';
 import { DataSource } from 'typeorm';
 import { AuthService } from './auth.service';
+import { Channel } from '../../models/entities/channel';
 
 @Injectable()
 export class AuthOrchestration {
@@ -29,7 +30,7 @@ export class AuthOrchestration {
     ) {}
 
     async register(registerReqDto: RegisterReqDto): Promise<RegisterResDto> {
-        const { email, password } = registerReqDto;
+        const { email, username, password } = registerReqDto;
 
         let existingUser: User = null;
 
@@ -61,6 +62,7 @@ export class AuthOrchestration {
         }
 
         const user: User = new User(email, hashedPassword);
+        const channel: Channel = new Channel(username, user);
 
         let insertedUser: User = null;
         let authToken: AuthToken = null;
@@ -75,6 +77,16 @@ export class AuthOrchestration {
                         {
                             error,
                         },
+                    );
+                    throw new ProcessFailureError(error);
+                }
+
+                try {
+                    await manager.save<Channel>(channel);
+                } catch (error) {
+                    this.logger.error(
+                        'Auth orchestration - register - insertChannel',
+                        { error },
                     );
                     throw new ProcessFailureError(error);
                 }

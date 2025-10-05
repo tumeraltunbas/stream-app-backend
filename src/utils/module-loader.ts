@@ -16,7 +16,7 @@ export const loadTypeOrmModule = (): DynamicModule => {
     const databaseConfig: DatabaseConfig = configuration().database;
 
     return TypeOrmModule.forRoot({
-        type: DATABASE_TYPES[databaseConfig.type],
+        type: DATABASE_TYPES[databaseConfig.type.toUpperCase()],
         host: databaseConfig.host,
         port: databaseConfig.port,
         username: databaseConfig.username,

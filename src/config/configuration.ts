@@ -4,6 +4,7 @@ export default (): Config => ({
     app: {
         port: parseInt(process.env.PORT) || 8080,
         nodeEnv: process.env.NODE_ENV,
+        globalPrefix: 'api',
     },
     database: {
         type: process.env.DB_TYPE,
@@ -47,6 +48,7 @@ interface Config {
 export interface AppConfig {
     port: number;
     nodeEnv: string;
+    globalPrefix: string;
 }
 
 export interface DatabaseConfig {

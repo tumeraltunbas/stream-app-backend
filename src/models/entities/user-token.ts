@@ -1,14 +1,17 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from './user';
+import {
+    Column,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    Relation,
+} from 'typeorm';
 import { DATABASE_TABLE_NAMES } from '../../constants/database';
+import type { User } from './user';
 
 @Entity(DATABASE_TABLE_NAMES.USER_TOKENS)
 export class UserToken {
     @PrimaryGeneratedColumn('uuid')
     id?: string;
-
-    @ManyToOne(() => User, (user) => user.userTokens)
-    user: User;
 
     @Column({ type: 'varchar' })
     accessToken: string;
@@ -24,6 +27,9 @@ export class UserToken {
 
     @Column({ type: 'bool', default: false })
     isRevoked: boolean;
+
+    @ManyToOne('User', (user: User) => user.userTokens, { nullable: false })
+    user: Relation<User>;
 
     constructor(user: User, accessToken: string, refreshToken: string) {
         this.user = user;
