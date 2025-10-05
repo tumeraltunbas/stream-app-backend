@@ -1,6 +1,5 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Response } from 'express';
-import { AuthService } from '../domains/auth/auth.service';
 import { SecurityConfig } from '../config/configuration';
 import { ConfigService } from '@nestjs/config';
 import { CONFIGURATION_KEYS } from '../constants/configuration';
@@ -15,17 +14,16 @@ import {
 } from '../infrastructure/error/error';
 import { ERROR_CODES } from '../constants/error';
 import { User } from '../models/entities/user';
-import { UserService } from '../domains/user/user.service';
 import { CustomRequest } from '../models/entities/request';
+import { MiddlewareService } from '../domains/middleware/middleware.service';
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {
     private readonly securityConfig: SecurityConfig;
     constructor(
-        private readonly authService: AuthService,
         private readonly configService: ConfigService,
         private readonly logger: Logger,
-        private readonly userService: UserService,
+        private readonly middlewareService: MiddlewareService,
     ) {
         this.securityConfig = this.configService.get<SecurityConfig>(
             CONFIGURATION_KEYS.security,
@@ -60,7 +58,7 @@ export class JwtMiddleware implements NestMiddleware {
 
                 try {
                     userToken =
-                        await this.authService.fetchUserTokenByAccessToken(
+                        await this.middlewareService.fetchUserTokenByAccessToken(
                             accessToken,
                         );
                 } catch (error) {
@@ -105,7 +103,7 @@ export class JwtMiddleware implements NestMiddleware {
                 );
 
                 try {
-                    await this.authService.updateUserTokenAccessToken(
+                    await this.middlewareService.updateUserTokenAccessToken(
                         userToken.id,
                         newAccessToken,
                     );
@@ -131,7 +129,7 @@ export class JwtMiddleware implements NestMiddleware {
         let user: User = null;
 
         try {
-            user = await this.userService.fetchUserById(payload.sub);
+            user = await this.middlewareService.fetchUserById(payload.sub);
         } catch (error) {
             this.logger.error('Jwt middleware - user - fetchUserById', {
                 error,
