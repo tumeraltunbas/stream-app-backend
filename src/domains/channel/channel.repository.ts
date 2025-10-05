@@ -42,4 +42,14 @@ export class ChannelRepository {
 
         return await this.channelRepository.findOne(query);
     }
+
+    async removeFollow(userId: string, channelId: string): Promise<void> {
+        const query: FindOptionsWhere<Follow> = {
+            user: { id: userId },
+            channel: { id: channelId },
+        };
+
+        await this.followRepository.delete(query);
+        return undefined;
+    }
 }

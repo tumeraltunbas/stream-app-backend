@@ -2,6 +2,7 @@ import { Controller, Patch, Body, Post, Req } from '@nestjs/common';
 import { CHANNEL_PREFIXES } from '../../constants/prefix';
 import {
     FollowChannelReqDto,
+    UnfollowChannelReqDto,
     UpdateChannelReqDto,
 } from '../../models/dto/req/channel';
 import { ChannelOrchestration } from './channel.orchestration';
@@ -21,7 +22,7 @@ export class ChannelController {
         return undefined;
     }
 
-    @Post(':channelId/follow')
+    @Post(CHANNEL_PREFIXES.FOLLOW)
     async followChannel(@Req() req: CustomRequest): Promise<void> {
         const followChannelReqDto: FollowChannelReqDto = {
             user: req.user,
@@ -29,6 +30,18 @@ export class ChannelController {
         };
 
         await this.channelOrchestration.followChannel(followChannelReqDto);
+
+        return undefined;
+    }
+
+    @Post(CHANNEL_PREFIXES.UNFOLLOW)
+    async unfollowChannel(@Req() req: CustomRequest): Promise<void> {
+        const unfollowChannelReqDto: UnfollowChannelReqDto = {
+            user: req.user,
+            channel: req.channel,
+        };
+
+        await this.channelOrchestration.unfollowChannel(unfollowChannelReqDto);
 
         return undefined;
     }

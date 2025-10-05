@@ -18,3 +18,8 @@ export class FollowChannelReqDto {
     user: User;
     channel: Channel;
 }
+
+export class UnfollowChannelReqDto {
+    user: User;
+    channel: Channel;
+}

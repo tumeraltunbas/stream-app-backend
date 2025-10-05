@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ChannelService } from './channel.service';
 import {
     FollowChannelReqDto,
+    UnfollowChannelReqDto,
     UpdateChannelReqDto,
 } from '../../models/dto/req/channel';
 import { ERROR_CODES } from '../../constants/error';
@@ -72,6 +73,24 @@ export class ChannelOrchestration {
         } catch (error) {
             this.logger.error(
                 'Channel orchestration - followChannel - createFollow',
+                { error },
+            );
+            throw new ProcessFailureError(error);
+        }
+
+        return undefined;
+    }
+
+    async unfollowChannel(
+        unfollowChannelReqDto: UnfollowChannelReqDto,
+    ): Promise<void> {
+        const { user, channel } = unfollowChannelReqDto;
+
+        try {
+            await this.channelService.removeFollow(user.id, channel.id);
+        } catch (error) {
+            this.logger.error(
+                'Channel orchestration - unfollowChannel - removeFollow',
                 { error },
             );
             throw new ProcessFailureError(error);

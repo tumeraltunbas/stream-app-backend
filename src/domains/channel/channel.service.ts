@@ -23,4 +23,9 @@ export class ChannelService {
     async getChannelById(channelId: string): Promise<Channel> {
         return await this.channelRepository.getChannelById(channelId);
     }
+
+    async removeFollow(userId: string, channelId: string): Promise<void> {
+        await this.channelRepository.removeFollow(userId, channelId);
+        return undefined;
+    }
 }

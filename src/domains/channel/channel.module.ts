@@ -41,6 +41,13 @@ export class ChannelModule implements NestModule {
                 ),
                 method: RequestMethod.POST,
             },
+            {
+                path: combinePath(
+                    CHANNEL_PREFIXES.BASE,
+                    CHANNEL_PREFIXES.UNFOLLOW,
+                ),
+                method: RequestMethod.POST,
+            },
         );
     }
 }

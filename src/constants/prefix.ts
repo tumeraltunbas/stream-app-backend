@@ -8,4 +8,5 @@ export enum CHANNEL_PREFIXES {
     BASE = 'channels',
     UPDATE = ':channelId',
     FOLLOW = ':channelId/follow',
+    UNFOLLOW = ':channelId/unfollow',
 }
