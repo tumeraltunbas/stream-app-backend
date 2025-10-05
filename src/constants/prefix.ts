@@ -3,3 +3,7 @@ export enum AUTH_PREFIXES {
     REGISTER = 'register',
     LOGIN = 'login',
 }
+
+export enum CHANNEL_PREFIXES {
+    BASE = 'channels',
+}

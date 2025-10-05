@@ -6,6 +6,7 @@ export const ERROR_CODES = {
     inactiveUser: 'inactive_user',
     authorizationError: 'authorization_error',
     notFound: 'not_found',
+    channelNotFound: 'channel_not_found',
 };
 
 export const ERROR_MESSAGES = {
@@ -16,4 +17,5 @@ export const ERROR_MESSAGES = {
     inactive_user: 'Inactive user.',
     authorization_error: 'Authorization error.',
     not_found: 'Not found.',
+    channel_not_found: 'Channel not found.',
 };
