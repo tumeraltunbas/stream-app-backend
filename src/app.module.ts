@@ -4,6 +4,7 @@ import { loadConfigModule, loadTypeOrmModule } from './utils/module-loader';
 import { AuthModule } from './domains/auth/auth.module';
 import { ChannelModule } from './domains/channel/channel.module';
 import { MiddlewareModule } from './domains/middleware/middleware.module';
+import { StreamModule } from './domains/stream/stream.module';
 
 @Module({
     imports: [
@@ -13,6 +14,7 @@ import { MiddlewareModule } from './domains/middleware/middleware.module';
         AuthModule,
         ChannelModule,
         MiddlewareModule,
+        StreamModule,
     ],
 })
 export class AppModule {}
