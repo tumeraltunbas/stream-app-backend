@@ -25,7 +25,10 @@ export class MiddlewareService {
         );
     }
 
-    async fetchUserById(userId: string): Promise<User> {
-        return this.userService.fetchUserById(userId);
+    async fetchUserById(
+        userId: string,
+        fromJwtMiddleware?: boolean,
+    ): Promise<User> {
+        return this.userService.fetchUserById(userId, fromJwtMiddleware);
     }
 }

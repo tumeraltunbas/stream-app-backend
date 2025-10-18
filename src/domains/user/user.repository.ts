@@ -41,12 +41,18 @@ export class UserRepository {
         return query.getOne();
     }
 
-    fetchUserById(userId: string): Promise<User> {
+    fetchUserById(userId: string, includeChannel?: boolean): Promise<User> {
         const query: FindOneOptions<User> = {
             where: {
                 id: userId,
             },
         };
+
+        if (includeChannel) {
+            query.relations = {
+                channel: true,
+            };
+        }
 
         return this.userRepository.findOne(query);
     }

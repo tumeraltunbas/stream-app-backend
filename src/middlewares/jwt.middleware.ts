@@ -126,10 +126,14 @@ export class JwtMiddleware implements NestMiddleware {
             }
         }
 
+        const includeChannel: boolean = true;
         let user: User = null;
 
         try {
-            user = await this.middlewareService.fetchUserById(payload.sub);
+            user = await this.middlewareService.fetchUserById(
+                payload.sub,
+                includeChannel,
+            );
         } catch (error) {
             this.logger.error('Jwt middleware - user - fetchUserById', {
                 error,

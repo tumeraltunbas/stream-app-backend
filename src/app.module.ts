@@ -5,6 +5,7 @@ import { AuthModule } from './domains/auth/auth.module';
 import { ChannelModule } from './domains/channel/channel.module';
 import { MiddlewareModule } from './domains/middleware/middleware.module';
 import { StreamModule } from './domains/stream/stream.module';
+import { RoomModule } from './domains/room/room.module';
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import { StreamModule } from './domains/stream/stream.module';
         ChannelModule,
         MiddlewareModule,
         StreamModule,
+        RoomModule,
     ],
 })
 export class AppModule {}

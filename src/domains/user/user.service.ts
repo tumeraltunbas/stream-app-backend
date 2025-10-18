@@ -21,7 +21,7 @@ export class UserService {
         return this.userRepository.fetchUserWithTokensByEmail(email, fromLogin);
     }
 
-    fetchUserById(userId: string): Promise<User> {
-        return this.userRepository.fetchUserById(userId);
+    fetchUserById(userId: string, includeChannel?: boolean): Promise<User> {
+        return this.userRepository.fetchUserById(userId, includeChannel);
     }
 }

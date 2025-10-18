@@ -3,4 +3,5 @@ export const DATABASE_TABLE_NAMES = {
     USER_TOKENS: 'user_tokens',
     CHANNELS: 'channels',
     FOLLOWS: 'follows',
+    ROOMS: 'rooms',
 };

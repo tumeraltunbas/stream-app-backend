@@ -10,6 +10,7 @@ import {
 import { DATABASE_TABLE_NAMES } from '../../constants/database';
 import type { User } from './user';
 import { Follow } from './follow';
+import { Room } from './room';
 
 @Entity(DATABASE_TABLE_NAMES.CHANNELS)
 export class Channel {
@@ -40,6 +41,9 @@ export class Channel {
 
     @OneToMany('Follow', (follow: Follow) => follow.channel)
     follows: Relation<Follow>[];
+
+    @OneToMany('Room', (room: Room) => room.channel)
+    rooms: Relation<Room>;
 
     constructor(name: string, user: User) {
         this.name = name;

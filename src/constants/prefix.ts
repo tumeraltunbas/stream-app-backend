@@ -10,3 +10,7 @@ export enum CHANNEL_PREFIXES {
     FOLLOW = ':channelId/follow',
     UNFOLLOW = ':channelId/unfollow',
 }
+
+export enum ROOM_PREFIXES {
+    BASE = 'rooms',
+}

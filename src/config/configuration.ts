@@ -31,6 +31,7 @@ export default (): Config => ({
             issuer: process.env.SERVER_BASE_URL,
             audience: process.env.WEB_BASE_URL,
         },
+        streamKeyBytes: 25,
     },
     path: {
         serverBaseUrl: process.env.SERVER_BASE_URL,
@@ -71,6 +72,7 @@ export interface SecurityConfig {
         issuer: string;
         audience: string;
     };
+    streamKeyBytes: number;
 }
 
 export interface PathConfig {
