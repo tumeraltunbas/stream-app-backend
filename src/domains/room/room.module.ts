@@ -12,6 +12,7 @@ import { RoomOrchestration } from './room.orchestration';
     imports: [LoggerModule, TypeOrmModule.forFeature([Room])],
     providers: [RoomService, RoomRepository, RoomOrchestration],
     controllers: [RoomController],
+    exports: [RoomService],
 })
 export class RoomModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {

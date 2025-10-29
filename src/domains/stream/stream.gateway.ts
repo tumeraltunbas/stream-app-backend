@@ -7,6 +7,8 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '../../infrastructure/logger/logger.service';
 import { Server, Socket } from 'socket.io';
+import { JoinStreamReqDto } from '../../models/dto/req/stream';
+import { StreamOrchestration } from './stream.orchestration';
 
 @WebSocketGateway({
     cors: {
@@ -17,7 +19,10 @@ import { Server, Socket } from 'socket.io';
 export class StreamGateway
     implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-    constructor(private readonly logger: Logger) {}
+    constructor(
+        private readonly logger: Logger,
+        private readonly streamOrchestration: StreamOrchestration,
+    ) {}
 
     @WebSocketServer()
     server: Server;
@@ -26,8 +31,13 @@ export class StreamGateway
         this.logger.log('Stream Gateway initialized');
     }
 
-    handleConnection(client: Socket) {
-        this.logger.log(`A client with id ${client.id} connected`);
+    async handleConnection(client: Socket) {
+        const joinStreamReqDto: JoinStreamReqDto = {
+            roomId: client.handshake.query.roomId as string,
+            streamKey: client.handshake.query?.streamKey as string,
+        };
+
+        await this.streamOrchestration.joinStream(joinStreamReqDto, client);
     }
 
     handleDisconnect(client: Socket) {

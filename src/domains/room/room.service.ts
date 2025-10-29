@@ -11,6 +11,10 @@ export class RoomService {
     }
 
     async getRoomsByChannelId(channelId: string): Promise<Room[]> {
-        return this.roomRepository.getRoomsByChannelId(channelId);
+        return await this.roomRepository.getRoomsByChannelId(channelId);
+    }
+
+    async getRoomById(roomId: string): Promise<Room> {
+        return await this.roomRepository.getRoomById(roomId);
     }
 }

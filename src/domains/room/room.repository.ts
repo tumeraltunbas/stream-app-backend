@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from '../../models/entities/room';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
 @Injectable()
 export class RoomRepository {
@@ -24,6 +24,16 @@ export class RoomRepository {
             },
         };
 
-        return this.roomRepository.find(query);
+        return await this.roomRepository.find(query);
+    }
+
+    async getRoomById(roomId: string): Promise<Room> {
+        const query: FindOneOptions<Room> = {
+            where: {
+                id: roomId,
+            },
+        };
+
+        return await this.roomRepository.findOne(query);
     }
 }

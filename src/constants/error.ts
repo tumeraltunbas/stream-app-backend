@@ -8,6 +8,8 @@ export const ERROR_CODES = {
     notFound: 'not_found',
     channelNotFound: 'channel_not_found',
     cannotFollowOwnChannel: 'cannot_follow_own_channel',
+    streamNotFound: 'stream_not_found',
+    unauthorizedAction: 'unauthorized_action',
 };
 
 export const ERROR_MESSAGES = {
@@ -20,4 +22,6 @@ export const ERROR_MESSAGES = {
     not_found: 'Not found.',
     channel_not_found: 'Channel not found.',
     cannot_follow_own_channel: 'User cannot follow his/her own channel.',
+    stream_not_found: 'Stream not found.',
+    unauthorized_action: 'Unauthorized action.',
 };
