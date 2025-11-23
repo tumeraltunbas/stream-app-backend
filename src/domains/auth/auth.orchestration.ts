@@ -13,7 +13,7 @@ import {
     generateAuthTokens,
     hashPassword,
 } from '../../utils/auth';
-import { AuthToken, TokenPayload } from '../../models/entities/token';
+import { AuthToken, JwtTokenPayload } from '../../models/entities/token';
 import { LoginResDto, RegisterResDto } from '../../models/dto/res/auth';
 import { UserToken } from '../../models/entities/user-token';
 import { DataSource } from 'typeorm';
@@ -91,7 +91,7 @@ export class AuthOrchestration {
                     throw new ProcessFailureError(error);
                 }
 
-                const payload: TokenPayload = {
+                const payload: JwtTokenPayload = {
                     sub: insertedUser.id,
                 };
 
@@ -187,7 +187,7 @@ export class AuthOrchestration {
             }
         }
 
-        const payload: TokenPayload = {
+        const payload: JwtTokenPayload = {
             sub: user.id,
         };
 

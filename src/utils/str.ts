@@ -9,3 +9,7 @@ export function generateStreamKey(): string {
     const streamKeyBytes = configuration().security.streamKeyBytes;
     return crypto.randomBytes(streamKeyBytes).toString('hex');
 }
+
+export function generateChannelNameFromEmail(email: string): string {
+    return email.split('@').at(0);
+}

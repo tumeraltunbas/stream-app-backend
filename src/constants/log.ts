@@ -1,1 +1,1 @@
-export const requestLogBlackList = ['password'];
+export const requestLogBlackList = ['password', 'credential'];

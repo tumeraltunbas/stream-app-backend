@@ -1,4 +1,4 @@
-export class TokenPayload {
+export class JwtTokenPayload {
     sub: string;
 }
 

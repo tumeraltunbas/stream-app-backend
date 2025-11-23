@@ -6,6 +6,7 @@ import { ChannelModule } from './domains/channel/channel.module';
 import { MiddlewareModule } from './domains/middleware/middleware.module';
 import { StreamModule } from './domains/stream/stream.module';
 import { RoomModule } from './domains/room/room.module';
+import { GoogleAuthModule } from './domains/google-auth/google-auth.module';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { RoomModule } from './domains/room/room.module';
         MiddlewareModule,
         StreamModule,
         RoomModule,
+        GoogleAuthModule,
     ],
 })
 export class AppModule {}

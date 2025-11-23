@@ -37,6 +37,13 @@ export default (): Config => ({
         serverBaseUrl: process.env.SERVER_BASE_URL,
         webBaseUrl: process.env.WEB_BASE_URL,
     },
+    google: {
+        auth: {
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            redirectUri: process.env.GOOGLE_REDIRECT_URI,
+        },
+    },
 });
 
 interface Config {
@@ -44,6 +51,7 @@ interface Config {
     database: DatabaseConfig;
     security: SecurityConfig;
     path: PathConfig;
+    google: GoogleConfig;
 }
 
 export interface AppConfig {
@@ -78,4 +86,12 @@ export interface SecurityConfig {
 export interface PathConfig {
     serverBaseUrl: string;
     webBaseUrl: string;
+}
+
+export interface GoogleConfig {
+    auth: {
+        clientId: string;
+        clientSecret: string;
+        redirectUri: string;
+    };
 }

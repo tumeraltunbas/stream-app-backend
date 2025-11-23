@@ -46,7 +46,7 @@ export class AuthController {
 
         const loginResDto = await this.authOrchestration.login(loginReqDto);
 
-        res.status(HttpStatus.CREATED)
+        res.status(HttpStatus.OK)
             .cookie(accessTokenHeaderName, loginResDto.authToken.accessToken)
             .json({});
     }

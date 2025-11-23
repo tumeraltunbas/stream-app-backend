@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import { AuthToken, TokenPayload } from '../models/entities/token';
+import { AuthToken, JwtTokenPayload } from '../models/entities/token';
 import configuration from '../config/configuration';
 import * as bcrypt from 'bcrypt';
 
@@ -11,7 +11,7 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 export function generateToken(
-    payload: TokenPayload,
+    payload: JwtTokenPayload,
     expiresIn: number,
 ): string {
     const { secretKey, issuer, audience } = configuration().security.jwt;
@@ -25,7 +25,7 @@ export function generateToken(
     return jwt.sign(payload, secretKey, options);
 }
 
-export function generateAuthTokens(payload: TokenPayload): AuthToken {
+export function generateAuthTokens(payload: JwtTokenPayload): AuthToken {
     const { accessTokenExpiresIn, refreshTokenExpiresIn } =
         configuration().security.jwt;
 
@@ -47,9 +47,9 @@ export async function comparePasswords(
     return await bcrypt.compare(password, hash);
 }
 
-export function verifyToken(token: string): TokenPayload {
+export function verifyToken(token: string): JwtTokenPayload {
     const { secretKey, issuer, audience } = configuration().security.jwt;
     const payload = jwt.verify(token, secretKey, { issuer, audience });
 
-    return payload as TokenPayload;
+    return payload as JwtTokenPayload;
 }

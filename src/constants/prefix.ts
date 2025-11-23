@@ -14,3 +14,8 @@ export enum CHANNEL_PREFIXES {
 export enum ROOM_PREFIXES {
     BASE = 'rooms',
 }
+
+export enum GOOGLE_AUTH_PREFIXES {
+    BASE = 'google-auth',
+    CALLBACK = 'callback',
+}

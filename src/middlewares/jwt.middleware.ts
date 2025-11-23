@@ -4,7 +4,7 @@ import { SecurityConfig } from '../config/configuration';
 import { ConfigService } from '@nestjs/config';
 import { CONFIGURATION_KEYS } from '../constants/configuration';
 import { generateToken, verifyToken } from '../utils/auth';
-import { TokenPayload } from '../models/entities/token';
+import { JwtTokenPayload } from '../models/entities/token';
 import { Logger } from '../infrastructure/logger/logger.service';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { UserToken } from '../models/entities/user-token';
@@ -42,7 +42,7 @@ export class JwtMiddleware implements NestMiddleware {
             throw new BusinessRuleError(ERROR_CODES.authorizationError);
         }
 
-        let payload: TokenPayload = null;
+        let payload: JwtTokenPayload = null;
         try {
             payload = verifyToken(accessToken);
         } catch (error) {
